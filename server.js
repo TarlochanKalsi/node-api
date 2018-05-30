@@ -16,21 +16,6 @@ app.use(bodyParser.json());
 
 var port     = process.env.PORT || 8080; // set our port
 
-// DATABASE SETUP
-var mongoose   = require('mongoose');
-mongoose.connect('mongodb://node:node@novus.modulusmongo.net:27017/Iganiq8o'); // connect to our database
-
-// Handle the connection event
-var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-
-db.once('open', function() {
-  console.log("DB connection alive");
-});
-
-// Bear models lives here
-var Bear     = require('./app/models/bear');
-
 // ROUTES FOR OUR API
 // =============================================================================
 
@@ -44,89 +29,31 @@ router.use(function(req, res, next) {
 	next();
 });
 
-// test route to make sure everything is working (accessed at GET http://localhost:8080/api)
+// test route to make sure everything is working (accessed at GET http://localhost:8080/components)
 router.get('/', function(req, res) {
-	res.json({ message: 'hooray! welcome to our api!' });	
+	res.json({ message: 'Get all the components' });	
 });
 
-// on routes that end in /bears
-// ----------------------------------------------------
-router.route('/bears')
+router.get('/:id', function(req, res) {
+	res.json({ message: 'Get the component'});	
+});
 
-	// create a bear (accessed at POST http://localhost:8080/bears)
-	.post(function(req, res) {
-		
-		var bear = new Bear();		// create a new instance of the Bear model
-		bear.name = req.body.name;  // set the bears name (comes from the request)
+router.get('/:id/subcomponents', function(req, res) {
+	res.json({ message: 'Get all the subcomponent'});	
+});
 
-		bear.save(function(err) {
-			if (err)
-				res.send(err);
+router.post('/', function(req, res) {
+	res.json({ message: 'Add a component'});	
+});
 
-			res.json({ message: 'Bear created!' });
-		});
-
-		
-	})
-
-	// get all the bears (accessed at GET http://localhost:8080/api/bears)
-	.get(function(req, res) {
-		Bear.find(function(err, bears) {
-			if (err)
-				res.send(err);
-
-			res.json(bears);
-		});
-	});
-
-// on routes that end in /bears/:bear_id
-// ----------------------------------------------------
-router.route('/bears/:bear_id')
-
-	// get the bear with that id
-	.get(function(req, res) {
-		Bear.findById(req.params.bear_id, function(err, bear) {
-			if (err)
-				res.send(err);
-			res.json(bear);
-		});
-	})
-
-	// update the bear with this id
-	.put(function(req, res) {
-		Bear.findById(req.params.bear_id, function(err, bear) {
-
-			if (err)
-				res.send(err);
-
-			bear.name = req.body.name;
-			bear.save(function(err) {
-				if (err)
-					res.send(err);
-
-				res.json({ message: 'Bear updated!' });
-			});
-
-		});
-	})
-
-	// delete the bear with this id
-	.delete(function(req, res) {
-		Bear.remove({
-			_id: req.params.bear_id
-		}, function(err, bear) {
-			if (err)
-				res.send(err);
-
-			res.json({ message: 'Successfully deleted' });
-		});
-	});
-
+router.post('/:id/subcomponents', function(req, res) {
+	res.json({ message: 'Add a sub-component'});	
+});
 
 // REGISTER OUR ROUTES -------------------------------
-app.use('/api', router);
+app.use('/components', router);
 
 // START THE SERVER
 // =============================================================================
 app.listen(port);
-console.log('Magic happens on port ' + port);
+console.log('Server started on port ' + port);
